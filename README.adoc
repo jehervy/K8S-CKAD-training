@@ -1,0 +1,126 @@
+# K8S-CKAD-training
+CKAD training resources
+
+## Tips
+
+### Change the default editor
+By default, the editor used to modify k8s resources is Vim. As we are not all familiar with this editr, it is possible to use nano instead :
+----
+export KUBE_EDITOR="nano"
+----
+
+### Use aliases
+It is really time consuming to write a full kubectl command, it can be usefull to define aliases :
+----
+export ns=default
+alias k='kubectl -n $ns' # This helps when namespace in question doesn't have a friendly name 
+----
+
+### Output formating
+The default output format for all kubectl commands is the human-readable plain-text format.
+The -o flag allows us to output the details in several different formats.
+Here are some of the commonly used formats:
+
+* `-o jsonOutput` a JSON formatted API object.
+* `-o namePrint` only the resource name and nothing else.
+* `-o wideOutput` in the plain-text format with any additional information.
+* `-o yamlOutput` a YAML formatted API object.
+
+### generate a yaml template
+Whatever the kind of k8s resource, it is possible to generate simply a yaml template into a file :
+----
+k run my-pod --image=nginx --restart=Never --dry-run -o yaml > my-pod.yaml
+----
+
+Then, this file can be completed and used to create the resource :
+----
+k create -f my-pod.yaml
+----
+
+## Configuration
+
+### Pods
+**Generate yaml**
+----
+k run my-pod --image=nginx --restart=Never --dry-run -o yaml
+----
+
+### Jobs
+**Generate yaml**
+----
+k run my-job --image=nginx --restart=OnFailure --dry-run -o yaml
+----
+
+### Cronjobs
+**Generate yaml**
+----
+k run my-cronjob --image=nginx --restart=OnFailure --schedule="*/15 * * * *" --dry-run -o yaml
+----
+
+### Deployments
+**Generate yaml**
+----
+k run my-cronjob --image=nginx --dry-run -o yaml
+k create deploy my-deploy --image=nginx -o yaml --dry-run
+----
+
+**Update the replicas**
+----
+k scale deploy my-deploy --replicas=3
+----
+
+### Service
+**Generate yaml**
+----
+k expose pod nginx --port=8080 --name nginx-service --dry-run -o yaml
+k create service clusterip nginx --tcp=8080:8080 --dry-run -o yaml
+----
+
+
+### Namespaces
+**Generate yaml**
+----
+k create namespace my-namespace --dry-run -o yaml
+----
+
+**Specify a namespace**
+----
+k get pods -n my-namespace
+k get pods --namespace my-namespace
+k get pods --all-namespaces
+----
+
+### Configmaps
+**Generate yaml**
+----
+k create cm my-cm --from-literal MY_ENV=my_value -o yaml --dry-run
+
+echo "MY_ENV=my_value" > envs.txt
+k create cm my-cm --from-file envs.txt -o yaml --dry-run
+----
+
+**Reference a cm to a pod**
+[source,yaml]
+----
+envFrom:
+  - configMapRef:
+      name: my-cm
+
+env:
+  - name: MY_ENV
+    valueFrom:
+      configMapKeyRef:
+        name: my-cm
+        key: MY_ENV
+
+----
+
+### Secrets
+
+### Service Accounts
+
+### Taints & Tolerations
+
+### Node Selectors
+
+### Node affinity
