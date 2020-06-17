@@ -116,6 +116,38 @@ env:
 ----
 
 ### Secrets
+**Generate yaml**
+----
+k create secret generic my-secret --from-literal MY_ENV=my_value -o yaml --dry-run
+
+echo "MY_ENV=my_value" > envs.txt
+k create secret generic my-secret --from-file envs.txt -o yaml --dry-run
+----
+
+**Reference a cm to a pod**
+[source,yaml]
+----
+envFrom:
+  - secretRef:
+      name: my-secret
+
+env:
+  - name: MY_ENV
+    valueFrom:
+      secretKeyRef:
+        name: my-secret
+        key: MY_ENV
+
+----
+
+**Encode & decode secrets**
+----
+# encode
+echo -n 'my_value' | base64
+
+# decode
+echo -n 'bXlfdmFsdWU=' | base64 --decode
+----
 
 ### Service Accounts
 
