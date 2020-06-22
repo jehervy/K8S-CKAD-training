@@ -149,10 +149,150 @@ echo -n 'my_value' | base64
 echo -n 'bXlfdmFsdWU=' | base64 --decode
 ----
 
+### Security Contexts
+
+**Update security context**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  # At pod level
+  securityContext:
+    runAsUser: 1000
+  containers:
+    - name: nginx
+      image: nginx
+      # Or at container lever
+      securityContext:
+        runAsUser: 2000
+        capabilities:
+          add: ["MAC_ADMIN"]
+----
+
 ### Service Accounts
+
+**Generate yaml**
+----
+k create sa my-sa --dry-run -o yaml
+----
+
+**Reference asevice account**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  # Change default service account
+  serviceAccount: my-sa
+  # Do not mount automatically service account token
+  automountServiceAccountToken: false
+  containers:
+    - name: nginx
+      image: nginx
+----
+
+**Resource Requirements**
+
+**Specify resource requirements**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      resources:
+        requests:
+          memory: "1Gi"
+          cpu: 1
+        limits:
+          memory: "2Gi"
+          cpu: 2
+----
 
 ### Taints & Tolerations
 
+**Taint a node**
+----
+k taint nodes my-node key=value:taint-effect
+----
+
+taint-effect can be :
+
+* `NoSchedule`: Pod with wrong toleration won't be schedule
+* `PreferNoSchedule`: Pod with wrong toleration won't be schedule, if possible, no warranty
+* `NoExecute`: Pod with wrong toleration won't be schedule and existing pod with wrong toleration will be killed
+
+**Apply a toleration to a pod**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+  tolerations:
+    - key: "key"
+      operator: "Equal"
+      value: "value"
+      effect: "taint-effect"
+----
+
 ### Node Selectors
 
+**Label a node**
+----
+k label nodes my-node key=value
+----
+
+**Specify a node selector to a pod**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+  nodeSelector:
+    key: value
+----
+
 ### Node affinity
+
+**Specify an affinity to a pod**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+  affinity:
+    nodeAffinity:
+      # preferredDuringSchedulingIgnoredDuringExecution
+      # requiredDuringSchedulingRequiredDuringExecution
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: key
+            operator: In|NotIn|Exists
+            values:
+            - value
+----
