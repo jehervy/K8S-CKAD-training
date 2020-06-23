@@ -1,7 +1,10 @@
 # K8S-CKAD-training
+:toc:
+:toc-placement!:
+
 CKAD training resources
 
-:toc:
+toc::[]
 
 ## Tips
 
