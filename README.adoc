@@ -1,6 +1,8 @@
 # K8S-CKAD-training
 CKAD training resources
 
+:toc:
+
 ## Tips
 
 ### Change the default editor
@@ -295,4 +297,228 @@ spec:
             operator: In|NotIn|Exists
             values:
             - value
+----
+
+## Observability
+
+### Readiness & Liveness
+
+**Specify readiness**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      # Is the container ready ?
+      readinessProbe:
+        # tcpSocket:
+        # exec:
+        #   command:
+        httpGet:
+          path: /api/ready
+          port: 8080
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        failureThreshold: 8
+----
+
+**Specify liveness**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      # Is the container still alive ?
+      livenessProbe:
+        # tcpSocket:
+        # exec:
+        #   command:
+        httpGet:
+          path: /api/alive
+          port: 8080
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        failureThreshold: 8
+----
+
+### Logging
+
+**View pod logs**
+----
+k logs -f my-pod
+----
+
+**View pod logs for a specific container**
+----
+k logs -f my-pod my-container
+----
+
+### Monitor & debug
+
+**Setup Metric Server**
+----
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
+----
+
+**Monitor resources**
+----
+kubectl top node
+kubectl top pod
+----
+
+## Pod design
+
+### Labels, Selector & Annotations
+
+**Labels definition**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: my-app-label
+    function: my-function-label
+spec:
+  containers:
+    - name: my-app
+      image: my-app
+----
+
+**Get filtered by label**
+----
+k get pods --selector key=value
+----
+
+**Selector definition**
+[source,yaml]
+----
+apiVersion: v1
+kind: ReplicaSet
+metadata:
+  name: my-rs
+  labels:
+    app: my-app-label
+    function: my-function-label
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app-label
+      function: my-function-label
+  template:
+    [...]
+----
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  labels:
+    app: my-app-label
+    function: my-function-label
+spec:
+  selector:
+    matchLabels:
+      app: my-app-label
+      function: my-function-label
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9376
+----
+
+**Annotations definition**
+[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  annotations:
+    buildVersions: 1.34
+spec:
+  selector:
+    matchLabels:
+      app: my-app-label
+      function: my-function-label
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9376
+----
+
+### Rolling Updates & Rollbacks in Deployments
+
+**Create deployment**
+----
+k create -f deploy-def.yaml
+----
+
+**Get deployment**
+----
+k get deploy
+----
+
+**Update a deployment**
+----
+k apply -f deploy-def.yaml
+k set image deploy/my-deploy container=newImage
+k edit deploy my-deploy [--record]
+----
+
+**Get deployment status**
+----
+k rollout status deploy/my-deploy
+k rollout history deploy/my-deploy [--version=version]
+----
+
+**Rollback a deployment**
+----
+k rollout undo deploy/my-deploy
+----
+
+### Jobs & Cronjobs
+
+**Job definition**
+[source,yaml]
+----
+apiVersion: v1
+kind: Job
+metadata:
+  name: my-job
+spec:
+  # Number of pods to create
+  completions: 3
+  # Number of pods created in parallel
+  parallelism: 3
+  template:
+    [Pod definition]
+----
+
+**CronJob definition**
+[source,yaml]
+----
+apiVersion: v1
+kind: CronJob
+metadata:
+  name: my-cronjob
+spec:
+  # Cron definition
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    [Job definition]
 ----
