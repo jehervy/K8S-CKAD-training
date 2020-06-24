@@ -525,3 +525,213 @@ spec:
   jobTemplate:
     [Job definition]
 ----
+
+## Services & Networking
+
+### Services
+
+**Services types**
+
+* `NodePort`: Forward the requests from the node port to a pod port.
+* `ClusterIp`: Create a virtual IP inside the cluster and enable communication between services.
+* `LoadBalancer`: Provision a load balancer distributing the load between pods.
+
+**NodePort**
+[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 80
+      # Required
+      port: 80
+      # Range: 30000 - 32767
+      nodePort: 30008
+  # Required
+  selector:
+    matchLabels:
+      app: my-app
+      type: my-app-type
+----
+
+**ClusterIp**
+[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  # Default type
+  type: ClusterIp
+  ports:
+    - targetPort: 80
+      port: 80
+  # Required
+  selector:
+    matchLabels:
+      app: my-app
+      type: my-app-type
+----
+
+### Ingress Networking
+
+**Ingress**
+[source,yaml]
+----
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-ingress
+  annotations:
+    # Rewrite the target
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # Rewrite the target with regex
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  # Handle all traffic
+  backend:
+    serviceName: my-service
+    servicePort: my-service-port
+  # Specific rules
+  rules:
+  - http:
+      paths:
+        # Choose host or path
+      - host: my-host
+        path: /path1
+        backend:
+          serviceName: my-service
+          servicePort: my-service-port
+      - host: rewrited.host.com
+        path: /something(/|$)(.*)
+        backend:
+          serviceName: my-other-service
+          servicePort: my-other-service-port
+----
+
+### Network Policies
+
+**Ingress network policy**
+[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-np
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          name: api-pod
+    port:
+    - protocol: TCP
+      port: 3306
+----
+
+**Egress network policy**
+[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-np
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          name: api-pod
+    port:
+    - protocol: TCP
+      port: 3306
+----
+
+## State Persistence
+
+### Volumes
+
+**Define volume**
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: my-app-label
+    function: my-function-label
+spec:
+  containers:
+    - name: my-app
+      image: my-app
+      volumeMounts:
+      - mountPath: /opt
+        name: my-volume
+  volumes:
+  - names: my-volume
+    hostPath:
+      path: /path
+      type: Directory
+    # emptyDir: {}
+    # persistentVolumeClaim:
+      # claimName: my-claim
+    # awsElasticBlockStore:
+      # volumeId: <volume-id>
+      # fsType: ext4
+----
+
+### Persistent Volumes
+
+**Create Persistent Volume**
+[source,yaml]
+----
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  accessModes: 
+    - ReadWriteOnce|ReadOnlyMany|ReadWriteMany
+  # What happen to the volume when claim is deleted
+  persistentVolumeReclaimPolicy: Retain|Delete|Recycle
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /tmp
+  # awsElasticBlockStore:
+    # volumeId: <volume-id>
+    # fsType: ext4
+----
+
+### Persistent Volume Claims
+
+**Create Persistent Volume Claim**
+[source,yaml]
+----
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-claim
+spec:
+  accessModes: 
+    - ReadWriteOnce|ReadOnlyMany|ReadWriteMany
+  resources:
+    requests:
+      storage: 500Mi
+----
