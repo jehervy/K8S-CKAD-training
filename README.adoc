@@ -42,6 +42,24 @@ Then, this file can be completed and used to create the resource :
 k create -f my-pod.yaml
 ----
 
+### Use shortcut
+Each k8s object has a shortcut/alias. Using them can save your time :
+
+* `po` for PODs
+* `rs` for ReplicaSets
+* `deploy` for Deployments
+* `svc` for Services
+* `ns` for Namespaces
+* `netpol` for Network policies
+* `pv` for Persistent Volumes
+* `pvc` for PersistentVolumeClaims
+* `sa` for Service Accounts
+
+For example, it is possible to retrieve the configmaps created in the current namespace using the command :
+----
+k get cm
+----
+
 ## Configuration
 
 ### Pods
