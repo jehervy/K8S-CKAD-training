@@ -125,16 +125,24 @@ k create cm my-cm --from-file envs.txt -o yaml --dry-run
 **Reference a cm to a pod**
 [source,yaml]
 ----
+# All env from cm
 envFrom:
   - configMapRef:
       name: my-cm
 
+# Only some keys
 env:
   - name: MY_ENV
     valueFrom:
       configMapKeyRef:
         name: my-cm
         key: MY_ENV
+
+# From volume
+volumes:
+- name: my-cm-volume
+  configmap:
+    name: my-cm
 
 ----
 
@@ -150,10 +158,12 @@ k create secret generic my-secret --from-file envs.txt -o yaml --dry-run
 **Reference a cm to a pod**
 [source,yaml]
 ----
+# All env from secret
 envFrom:
   - secretRef:
       name: my-secret
 
+# Only some keys
 env:
   - name: MY_ENV
     valueFrom:
@@ -161,6 +171,11 @@ env:
         name: my-secret
         key: MY_ENV
 
+# From volume
+volumes:
+- name: my-secret-volume
+  secret:
+    secretName: my-secret
 ----
 
 **Encode & decode secrets**
@@ -684,6 +699,9 @@ spec:
 
 ### Volumes
 
+**Type of volumes**
+All types of volumes can be found here : https://kubernetes.io/docs/concepts/storage/volumes/#types-of-volumes
+
 **Define volume**
 [source,yaml]
 ----
@@ -702,7 +720,7 @@ spec:
       - mountPath: /opt
         name: my-volume
   volumes:
-  - names: my-volume
+  - name: my-volume
     hostPath:
       path: /path
       type: Directory
@@ -728,6 +746,7 @@ spec:
     - ReadWriteOnce|ReadOnlyMany|ReadWriteMany
   # What happen to the volume when claim is deleted
   persistentVolumeReclaimPolicy: Retain|Delete|Recycle
+  storageClassName: storage-class-name
   capacity:
     storage: 1Gi
   # Host path
