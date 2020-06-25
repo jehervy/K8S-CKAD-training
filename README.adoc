@@ -65,7 +65,7 @@ k run my-cronjob --image=nginx --restart=OnFailure --schedule="*/15 * * * *" --d
 ### Deployments
 **Generate yaml**
 ----
-k run my-cronjob --image=nginx --dry-run -o yaml
+k run my-deploy --image=nginx --dry-run -o yaml
 k create deploy my-deploy --image=nginx -o yaml --dry-run
 ----
 
@@ -712,11 +712,18 @@ spec:
   persistentVolumeReclaimPolicy: Retain|Delete|Recycle
   capacity:
     storage: 1Gi
+  # Host path
   hostPath:
     path: /tmp
-  # awsElasticBlockStore:
-    # volumeId: <volume-id>
-    # fsType: ext4
+  # Elastic block store
+  awsElasticBlockStore:
+    volumeId: <volume-id>
+    fsType: ext4
+  # NFS
+  volumeMode: Filesystem
+  nfs:
+    path: /html
+    server: nfs01
 ----
 
 ### Persistent Volume Claims
