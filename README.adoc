@@ -203,6 +203,8 @@ spec:
   containers:
     - name: nginx
       image: nginx
+      ports:
+      - containerPort: 80
       # Or at container lever
       securityContext:
         runAsUser: 2000
@@ -217,7 +219,7 @@ spec:
 k create sa my-sa --dry-run -o yaml
 ----
 
-**Reference asevice account**
+**Reference a service account**
 [source,yaml]
 ----
 apiVersion: v1
@@ -232,9 +234,11 @@ spec:
   containers:
     - name: nginx
       image: nginx
+      ports:
+      - containerPort: 80
 ----
 
-**Resource Requirements**
+### Resource Requirements
 
 **Specify resource requirements**
 [source,yaml]
@@ -247,6 +251,8 @@ spec:
   containers:
     - name: nginx
       image: nginx
+      ports:
+      - containerPort: 80
       resources:
         requests:
           memory: "1Gi"
@@ -280,6 +286,8 @@ spec:
   containers:
     - name: nginx
       image: nginx
+      ports:
+      - containerPort: 80      
   tolerations:
     - key: "key"
       operator: "Equal"
@@ -305,6 +313,11 @@ spec:
   containers:
     - name: nginx
       image: nginx
+      ports:
+      - containerPort: 80      
+  # Select node by node name
+  nodeName: master
+  # Select node by label
   nodeSelector:
     key: value
 ----
@@ -322,6 +335,8 @@ spec:
   containers:
     - name: nginx
       image: nginx
+      ports:
+      - containerPort: 80      
   affinity:
     nodeAffinity:
       # preferredDuringSchedulingIgnoredDuringExecution
@@ -350,6 +365,8 @@ spec:
   containers:
     - name: nginx
       image: nginx
+      ports:
+      - containerPort: 80      
       # Is the container ready ?
       readinessProbe:
         # tcpSocket:
@@ -374,6 +391,8 @@ spec:
   containers:
     - name: nginx
       image: nginx
+      ports:
+      - containerPort: 80
       # Is the container still alive ?
       livenessProbe:
         # tcpSocket:
@@ -498,6 +517,39 @@ spec:
 ----
 
 ### Rolling Updates & Rollbacks in Deployments
+
+**Deployment strategy**
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  # Strategy type : Rolling update by default
+  strategy:
+    type: RollingUpdate|Recreate
+    rollingUpdate:
+      maxSurge: 2        # how many pods we can add at a time
+      maxUnavailable: 0  # maxUnavailable define how many pods can be unavailable during the rolling update
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+----
+
 
 **Create deployment**
 ----
@@ -684,15 +736,30 @@ spec:
     matchLabels:
       role: db
   policyTypes:
+  - Ingress
   - Egress
-  egress:
-  - to:
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 172.17.0.0/16
+        except:
+        - 172.17.1.0/24
+    - namespaceSelector:
+        matchLabels:
+          project: myproject
     - podSelector:
         matchLabels:
-          name: api-pod
-    port:
+          role: frontend
+    ports:
     - protocol: TCP
-      port: 3306
+      port: 6379
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/24
+    ports:
+    - protocol: TCP
+      port: 5978
 ----
 
 ## State Persistence
@@ -730,6 +797,10 @@ spec:
     # awsElasticBlockStore:
       # volumeId: <volume-id>
       # fsType: ext4
+    # configmap:
+      # name: my-cm
+    # secret:
+      # secretName: my-secret
 ----
 
 ### Persistent Volumes
@@ -746,6 +817,7 @@ spec:
     - ReadWriteOnce|ReadOnlyMany|ReadWriteMany
   # What happen to the volume when claim is deleted
   persistentVolumeReclaimPolicy: Retain|Delete|Recycle
+  # Specify storage class name
   storageClassName: storage-class-name
   capacity:
     storage: 1Gi
@@ -778,4 +850,6 @@ spec:
   resources:
     requests:
       storage: 500Mi
+  # Specify storage class name
+  storageClassName: manual
 ----
