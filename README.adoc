@@ -60,6 +60,29 @@ For example, it is possible to retrieve the configmaps created in the current na
 k get cm
 ----
 
+### Run a busybox
+In order to debug a behavior from inside the cluster it could be interesting to run a busybox image and exe a shell in it.
+
+It can be done using a simple command :
+
+----
+k run -i --tty busybox --restart=Never --image=busybox -- sh
+----
+
+It is also possible to open a shell from any pod :
+
+----
+k exec -it <pod_name> -- sh
+----
+
+### Test a port
+In some cases, it can be interesting to test TCP port (from busybox or from any other pod).
+
+Once a shell opened from the targeted pod, simply use netcat command :
+----
+nc -zv <service_or_ip> <port>
+----
+
 ## Configuration
 
 ### Pods
@@ -141,7 +164,7 @@ env:
 # From volume
 volumes:
 - name: my-cm-volume
-  configmap:
+  configMap:
     name: my-cm
 
 ----
@@ -797,7 +820,7 @@ spec:
     # awsElasticBlockStore:
       # volumeId: <volume-id>
       # fsType: ext4
-    # configmap:
+    # configMap:
       # name: my-cm
     # secret:
       # secretName: my-secret
