@@ -2,7 +2,18 @@
 :toc:
 :toc-placement!:
 
-CKAD training resources
+--
+[link=https://www.cncf.io/certification/ckad/]
+image::https://www.cncf.io/wp-content/uploads/2018/04/kubernetes-ckad-color.png[CKAD,100, role=left]
+
+
+link:https://www.cncf.io/certification/ckad/[Certified Kubernetes Application Developer] (CKAD) is a certification developed by the link:https://www.cncf.io/[Cloud Native Computing Foundation] (CNCF). 
+
+The exam consists of a set of problems (~19) to be solved in a command line and is expected to take approximately 2 hours to complete.
+
+Hereafter some notes to help passing the exam.
+
+--
 
 toc::[]
 
@@ -208,9 +219,11 @@ echo -n 'my_value' | base64
 
 # decode
 echo -n 'bXlfdmFsdWU=' | base64 --decode
+k get secret my-secret -o yaml | yq r - data.MY_ENV | base64 --decode
 ----
 
 ### Security Contexts
+A security context defines the operating system security settings (uid, gid, capabilities, SELinux role, etc..) applied to a container
 
 **Update security context**
 [source,yaml]
@@ -236,6 +249,7 @@ spec:
 ----
 
 ### Service Accounts
+A service account provides an identity for processes that run in a Pod.
 
 **Generate yaml**
 ----
@@ -262,6 +276,7 @@ spec:
 ----
 
 ### Resource Requirements
+When you specify a Pod, you can optionally specify how much of each resource a Container needs. The most common resources to specify are CPU and memory (RAM); there are others.
 
 **Specify resource requirements**
 [source,yaml]
@@ -286,6 +301,11 @@ spec:
 ----
 
 ### Taints & Tolerations
+Node affinity, is a property of Pods that attracts them to a set of nodes (either as a preference or a hard requirement). Taints are the opposite -- they allow a node to repel a set of pods.
+
+Tolerations are applied to pods, and allow (but do not require) the pods to schedule onto nodes with matching taints.
+
+Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes. One or more taints are applied to a node; this marks that the node should not accept any pods that do not tolerate the taints.
 
 **Taint a node**
 ----
@@ -319,6 +339,7 @@ spec:
 ----
 
 ### Node Selectors
+`nodeSelector` provides a very simple way to constrain pods to nodes with particular labels.
 
 **Label a node**
 ----
@@ -346,6 +367,7 @@ spec:
 ----
 
 ### Node affinity
+Node affinity is conceptually similar to `nodeSelector` -- it allows you to constrain which nodes your pod is eligible to be scheduled on, based on labels on the node.
 
 **Specify an affinity to a pod**
 [source,yaml]
@@ -616,6 +638,10 @@ spec:
   completions: 3
   # Number of pods created in parallel
   parallelism: 3
+  # Force job termiantion after a specific deadline
+  activeDeadlineSeconds: 20
+  # Number of restart before job is considered as failed
+  backoffLimit: 25
   template:
     [Pod definition]
 ----
@@ -630,6 +656,8 @@ metadata:
 spec:
   # Cron definition
   schedule: "*/1 * * * *"
+  # Wait for next scheduled job is current job is not scheduled in a specific deadline
+  startingDeadlineSeconds: 60
   jobTemplate:
     [Job definition]
 ----
@@ -687,6 +715,7 @@ spec:
 ----
 
 ### Ingress Networking
+Ingress exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the Ingress resource.
 
 **Ingress**
 [source,yaml]
@@ -723,6 +752,13 @@ spec:
 ----
 
 ### Network Policies
+By default, pods are non-isolated; they accept traffic from any source.
+
+Pods become isolated by having a NetworkPolicy that selects them. Once there is any NetworkPolicy in a namespace selecting a particular pod, that pod will reject any connections that are not allowed by any NetworkPolicy.
+
+ingress: Each NetworkPolicy may include a list of allowed ingress rules. Each rule allows traffic which matches both the from and ports sections. The example policy contains a single rule, which matches traffic on a single port, from one of three sources, the first specified via an ipBlock, the second via a namespaceSelector and the third via a podSelector.
+
+egress: Each NetworkPolicy may include a list of allowed egress rules. Each rule allows traffic which matches both the to and ports sections. The example policy contains a single rule, which matches traffic on a single port to any destination in 10.0.0.0/24.
 
 **Ingress network policy**
 [source,yaml]
@@ -732,6 +768,7 @@ kind: NetworkPolicy
 metadata:
   name: my-np
 spec:
+  # Pods to apply the policy
   podSelector:
     matchLabels:
       role: db
@@ -755,6 +792,7 @@ kind: NetworkPolicy
 metadata:
   name: my-np
 spec:
+  # Pods to apply the policy
   podSelector:
     matchLabels:
       role: db
