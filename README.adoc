@@ -2,18 +2,16 @@
 :toc:
 :toc-placement!:
 
---
-[link=https://www.cncf.io/certification/ckad/]
-image::https://www.cncf.io/wp-content/uploads/2018/04/kubernetes-ckad-color.png[CKAD,100, role=left]
-
-
+++++
+<a href="https://www.cncf.io/certification/ckad/">
+<img align="left" role="left" src="https://www.cncf.io/wp-content/uploads/2018/04/kubernetes-ckad-color.png" height="100"/>
+</a>
+++++
 link:https://www.cncf.io/certification/ckad/[Certified Kubernetes Application Developer] (CKAD) is a certification developed by the link:https://www.cncf.io/[Cloud Native Computing Foundation] (CNCF). 
 
 The exam consists of a set of problems (~19) to be solved in a command line and is expected to take approximately 2 hours to complete.
 
 Hereafter some notes to help passing the exam.
-
---
 
 toc::[]
 
