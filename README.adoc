@@ -2,11 +2,6 @@
 :toc:
 :toc-placement!:
 
-++++
-<a href="https://www.cncf.io/certification/ckad/">
-<img align="left" role="left" src="https://www.cncf.io/wp-content/uploads/2018/04/kubernetes-ckad-color.png" height="100"/>
-</a>
-++++
 link:https://www.cncf.io/certification/ckad/[Certified Kubernetes Application Developer] (CKAD) is a certification developed by the link:https://www.cncf.io/[Cloud Native Computing Foundation] (CNCF). 
 
 The exam consists of a set of problems (~19) to be solved in a command line and is expected to take approximately 2 hours to complete.
@@ -82,6 +77,21 @@ It is also possible to open a shell from any pod :
 
 ----
 k exec -it <pod_name> -- sh
+----
+
+It is possible to run a specific command by tuning the pod sepcification :
+
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: time-check
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    name: time-check
+    command: ["/bin/sh", "-c", "while true; do date; sleep $TIME_FREQ;done > /opt/time/time-check.log"]
 ----
 
 ### Test a port
