@@ -787,7 +787,7 @@ spec:
     - podSelector:
         matchLabels:
           name: api-pod
-    port:
+    ports:
     - protocol: TCP
       port: 3306
 ----
