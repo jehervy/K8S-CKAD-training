@@ -486,6 +486,27 @@ kubectl top pod
 
 ## Pod design
 
+### Command
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: my-busybox
+  name: my-busybox
+  namespace: dev2406
+spec:
+  containers:
+  - image: busybox
+    name: secret
+    resources: {}
+    command: ["/bin/sh", "-c", "sleep 3600"]
+  restartPolicy: Never
+----
+
 ### Labels, Selector & Annotations
 
 **Labels definition**
