@@ -424,7 +424,7 @@ spec:
       readinessProbe:
         # tcpSocket:
         # exec:
-        #   command:
+        #   command: ["ls /var/www/html/file_check"]
         httpGet:
           path: /api/ready
           port: 8080
@@ -687,6 +687,8 @@ spec:
   schedule: "*/1 * * * *"
   # Wait for next scheduled job is current job is not scheduled in a specific deadline
   startingDeadlineSeconds: 60
+  # Concurrency policy
+  concurrencyPolicy: Allow|Forbid|Replace
   jobTemplate:
     [Job definition]
 ----
@@ -765,19 +767,18 @@ spec:
     servicePort: my-service-port
   # Specific rules
   rules:
-  - http:
+  - host: watch.ecom-store.com
+    http:
       paths:
-        # Choose host or path
-      - host: my-host
-        path: /path1
-        backend:
-          serviceName: my-service
-          servicePort: my-service-port
-      - host: rewrited.host.com
-        path: /something(/|$)(.*)
-        backend:
-          serviceName: my-other-service
-          servicePort: my-other-service-port
+      - backend:
+          serviceName: video-service
+          servicePort: 8080
+  - host: apparels.ecom-store.com
+    http:
+      paths:
+      - backend:
+          serviceName: apparels-service
+          servicePort: 8080
 ----
 
 ### Network Policies
@@ -876,6 +877,7 @@ spec:
       volumeMounts:
       - mountPath: /opt
         name: my-volume
+        # readOnly: true
   volumes:
   - name: my-volume
     hostPath:
