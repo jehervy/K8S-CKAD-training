@@ -658,7 +658,7 @@ k rollout undo deploy/my-deploy
 **Job definition**
 [source,yaml]
 ----
-apiVersion: v1
+apiVersion: batch/v1beta1
 kind: Job
 metadata:
   name: my-job
@@ -678,7 +678,7 @@ spec:
 **CronJob definition**
 [source,yaml]
 ----
-apiVersion: v1
+apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: my-cronjob
