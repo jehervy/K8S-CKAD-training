@@ -73,6 +73,11 @@ It can be done using a simple command :
 k run -i --tty busybox --restart=Never --image=busybox -- sh
 ----
 
+It's possible to run a busybox to get a web resource :
+----
+k run -it --rm busybox --image=busybox --restart=Never --labels='access=not-granted' -- wget -O- nginx
+----
+
 It is also possible to open a shell from any pod :
 
 ----
