@@ -679,9 +679,10 @@ k rollout history deploy/my-deploy [--version=version]
 k rollout undo deploy/my-deploy
 ----
 
-**Pause the rollout**
+**Pause/resume the rollout**
 ----
 kubectl rollout pause deploy nginx
+kubectl rollout resume deploy nginx
 ----
 
 ### Jobs & Cronjobs
