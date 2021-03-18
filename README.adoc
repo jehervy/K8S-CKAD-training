@@ -536,6 +536,11 @@ spec:
 k get pods --show-labels
 ----
 
+**Show specific label**
+----
+k get pods -L label_key
+----
+
 **Get filtered by label**
 ----
 k get pods --selector key=value
