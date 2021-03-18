@@ -119,7 +119,7 @@ k create job --image=nginx --dry-run -o yaml
 ### Cronjobs
 **Generate yaml**
 ----
-k run my-cronjob --image=nginx --restart=OnFailure --schedule="*/15 * * * *" --dry-run -o yaml
+k create cronjob my-cj --image=busybox --schedule="* * * * *" -o yaml --dry-run
 ----
 
 ### Deployments
