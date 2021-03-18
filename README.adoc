@@ -134,6 +134,11 @@ k create deploy my-deploy --image=nginx -o yaml --dry-run
 k scale deploy my-deploy --replicas=3
 ----
 
+**Autoscale a deployment**
+----
+k autoscale deploy nginx --min=5 --max=10 --cpu-percent=80
+----
+
 ### Service
 **Generate yaml**
 ----
