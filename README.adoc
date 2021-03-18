@@ -472,6 +472,11 @@ k logs -f my-pod
 k logs -f my-pod my-container
 ----
 
+**View pod logs for the previous instance**
+----
+k logs -p my-pod
+----
+
 ### Monitor & debug
 
 **Setup Metric Server**
