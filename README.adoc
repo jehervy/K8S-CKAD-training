@@ -138,6 +138,7 @@ k scale deploy my-deploy --replicas=3
 **Generate yaml**
 ----
 k expose pod nginx --port=8080 --name nginx-service --dry-run -o yaml
+k expose deployment my-app --name=my-service --type=NodePort --target-port=80 --port=80 --dryrun -o yaml
 k create service clusterip nginx --tcp=8080:8080 --dry-run -o yaml
 ----
 
