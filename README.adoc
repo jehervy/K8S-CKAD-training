@@ -270,6 +270,11 @@ A service account provides an identity for processes that run in a Pod.
 k create sa my-sa --dry-run -o yaml
 ----
 
+**Create pod with service account**
+----
+ku run nginx --image=nginx --restart=Never --serviceaccount=my-sa -o yaml --dry-run
+----
+
 **Reference a service account**
 [source,yaml]
 ----
