@@ -113,7 +113,7 @@ k run my-pod --image=nginx --restart=Never --dry-run -o yaml
 ### Jobs
 **Generate yaml**
 ----
-k run my-job --image=nginx --restart=OnFailure --dry-run -o yaml
+k create job --image=nginx --dry-run -o yaml
 ----
 
 ### Cronjobs
