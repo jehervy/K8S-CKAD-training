@@ -586,6 +586,11 @@ spec:
     targetPort: 9376
 ----
 
+**Annotate**
+----
+k annotate po nginx1 nginx2 nginx3 description='my description'
+----
+
 **Annotations definition**
 [source,yaml]
 ----
