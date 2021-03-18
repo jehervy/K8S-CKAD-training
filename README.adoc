@@ -531,6 +531,11 @@ spec:
       image: my-app
 ----
 
+**Show labels**
+----
+k get pods --show-labels
+----
+
 **Get filtered by label**
 ----
 k get pods --selector key=value
