@@ -292,6 +292,11 @@ spec:
 ### Resource Requirements
 When you specify a Pod, you can optionally specify how much of each resource a Container needs. The most common resources to specify are CPU and memory (RAM); there are others.
 
+**Specicy resource requirements at creation**
+----
+k run nginx --image=nginx --restart=Never --requests='cpu=100m,memory=256Mi' --limits='cpu=200m,memory=512Mi' -o yaml --dry-run
+----
+
 **Specify resource requirements**
 [source,yaml]
 ----
